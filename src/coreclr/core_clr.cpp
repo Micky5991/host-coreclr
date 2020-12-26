@@ -22,6 +22,9 @@ CoreClr::CoreClr() {
 }
 
 CoreClr::~CoreClr() {
+    _coreclr_host_handle = nullptr;
+    _coreclr_domain_id = 0;
+
     _coreclr_initialize = nullptr;
     _coreclr_execute_assembly = nullptr;
     _coreclr_create_delegate = nullptr;
