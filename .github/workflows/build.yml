@@ -15,8 +15,13 @@ jobs:
         include:
           - environment: ubuntu-latest
             artifact-name: example-application-x86_64-linux
+            artifact-path: |
+              build/src/coreclr-example/dist/**/*
+
           - environment: windows-latest
             artifact-name: example-application-x64-windows
+            artifact-path: |
+              build/src/coreclr-example/dist/Release/**/*
 
     name: Build CoreCLR host
     runs-on: ${{ matrix.environment }}
@@ -49,5 +54,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.artifact-name }}
-          path: |
-            build/src/coreclr-example/dist/**/*
+          path: ${{ matrix.artifact-path }}
