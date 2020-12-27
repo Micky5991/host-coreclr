@@ -1,0 +1,41 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+      - test-actions
+
+jobs:
+  build:
+
+    strategy:
+      matrix:
+        environment: [ ubuntu-latest, windows-latest ]
+
+    name: Build CoreCLR host
+    runs-on: ${{ matrix.environment }}
+    env:
+      CC: "gcc-10"
+      CXX: "g++-10"
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Create build directory
+        run: mkdir build/
+
+      - name: Setup CMake for Windows
+        if: ${{ runner.os == 'Windows' }}
+        working-directory: build
+        run: cmake -G "Visual Studio 16 2019" -A x64 ..
+
+      - name: Setup CMake for Linux
+        if: ${{ runner.os == 'Linux' }}
+        working-directory: build
+        run: cmake ..
+
+      - name: Build with CMake
+        working-directory: build
+        run: cmake --build . --config Release

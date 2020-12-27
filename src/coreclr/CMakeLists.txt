@@ -6,7 +6,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(coreclr core_clr.cpp)
 
-target_include_directories(coreclr PUBLIC ../../include)
-target_include_directories(coreclr PRIVATE include/)
 target_compile_features(coreclr PUBLIC cxx_std_17)
 
+target_include_directories(coreclr PUBLIC ../../include)
+target_include_directories(coreclr PRIVATE include/)
+
+if(CMAKE_DL_LIBS)
+    target_link_libraries(coreclr ${CMAKE_DL_LIBS})
+endif()

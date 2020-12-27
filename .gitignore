@@ -1,5 +1,6 @@
 runtime/*
 !runtime/.gitkeep
+act/
 
 # Created by https://www.toptal.com/developers/gitignore/api/cmake,dotnetcore,jetbrains+all,c++
 # Edit at https://www.toptal.com/developers/gitignore?templates=cmake,dotnetcore,jetbrains+all,c++

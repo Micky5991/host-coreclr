@@ -8,6 +8,7 @@
 #include <Windows.h>
 #define TPA_SEPERATOR ";"
 #else
+#include <dlfcn.h>
 #define TPA_SEPERATOR ":"
 #endif
 
