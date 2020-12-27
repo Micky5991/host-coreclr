@@ -12,6 +12,11 @@ jobs:
     strategy:
       matrix:
         environment: [ ubuntu-latest, windows-latest ]
+        include:
+          - environment: ubuntu-latest
+            artifact-name: example-application-x86_64-linux
+          - environment: windows-latest
+            artifact-name: example-application-x64-windows
 
     name: Build CoreCLR host
     runs-on: ${{ matrix.environment }}
@@ -40,9 +45,9 @@ jobs:
         working-directory: build
         run: cmake --build . --config Release
 
-      - name: Archive production artifacts
+      - name: Archive ${{ matrix.artifact-name }} build artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: example-application
+          name: ${{ matrix.artifact-name }}
           path: |
             build/src/coreclr-example/dist/**/*
