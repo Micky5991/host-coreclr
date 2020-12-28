@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <vector>
 #include "coreclrhost.h"
 
 #ifdef _WIN32
@@ -25,7 +26,8 @@ class CoreClr {
 
     std::string get_trusted_platform_assemblies(const std::filesystem::path& runtime_path);
     bool load_library(std::filesystem::path library_path);
-    bool initialize_host(const std::filesystem::path& runtime_path, const std::filesystem::path& plugins_path);
+    bool initialize_host(const std::filesystem::path& runtime_path, const std::filesystem::path& plugins_path,
+                         const std::vector<std::filesystem::path>& additional_native_paths = std::vector<std::filesystem::path>());
 
 public:
 

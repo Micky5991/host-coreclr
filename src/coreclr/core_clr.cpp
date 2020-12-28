@@ -124,15 +124,23 @@ bool CoreClr::load_library(std::filesystem::path library_path) {
     return true;
 }
 
-bool CoreClr::initialize_host(const std::filesystem::path& runtime_path, const std::filesystem::path& plugins_path) {
+bool CoreClr::initialize_host(const std::filesystem::path& runtime_path, const std::filesystem::path& plugins_path,
+                              const std::vector<std::filesystem::path>& additional_native_paths) {
+
     std::string trusted_assemblies = get_trusted_platform_assemblies(runtime_path);
     std::string plugins_location = plugins_path.string();
     std::string runtime_location = runtime_path.string();
 
-    std::stringstream native_search_path;
-    native_search_path << plugins_location << TPA_SEPERATOR << runtime_location;
+    std::vector<std::filesystem::path> native_search_directories = additional_native_paths;
+    native_search_directories.push_back(runtime_path);
+    native_search_directories.push_back(plugins_path);
 
-    std::string native_search_location = native_search_path.str();
+    std::stringstream native_search_path;
+    for(auto& path : native_search_directories) {
+        native_search_path << TPA_SEPERATOR << path.string();
+    }
+
+    std::string native_search_location = native_search_path.str().substr(1);
 
     const char* propertyKeys[] = {
             "TRUSTED_PLATFORM_ASSEMBLIES",
