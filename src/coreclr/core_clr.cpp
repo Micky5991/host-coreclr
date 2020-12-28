@@ -32,8 +32,9 @@ CoreClr::~CoreClr() {
     _coreclr_shutdown = nullptr;
 }
 
-bool CoreClr::initialize(const std::filesystem::path& runtime_path, const std::filesystem::path& plugin_path) {
-    return load_library(runtime_path) && initialize_host(runtime_path, plugin_path);
+bool CoreClr::initialize(const std::filesystem::path& runtime_path, const std::filesystem::path& plugin_path,
+                         const std::vector<std::filesystem::path>& additional_native_paths) {
+    return load_library(runtime_path) && initialize_host(runtime_path, plugin_path, additional_native_paths);
 }
 
 bool CoreClr::start(const std::filesystem::path& assembly_path, int argc, const char** argv) {

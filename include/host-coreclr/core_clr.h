@@ -34,7 +34,8 @@ public:
     CoreClr();
     ~CoreClr();
 
-    bool initialize(const std::filesystem::path& runtime_path, const std::filesystem::path& plugin_path);
+    bool initialize(const std::filesystem::path& runtime_path, const std::filesystem::path& plugin_path,
+                    const std::vector<std::filesystem::path>& additional_native_paths = std::vector<std::filesystem::path>());
     bool start(const std::filesystem::path& assembly_path, int argc, const char** argv);
 
     int stop();
