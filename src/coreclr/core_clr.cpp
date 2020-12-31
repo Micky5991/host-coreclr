@@ -1,16 +1,13 @@
 #include <iostream>
 #include <string>
-#include <sstream>
 
 #include "host-coreclr/core_clr.h"
 #include "host-coreclr/helpers.h"
 
 #ifdef _WIN32
 #include <Windows.h>
-#define TPA_SEPERATOR ";"
 #else
 #include <dlfcn.h>
-#define TPA_SEPERATOR ":"
 #endif
 
 CoreClr::CoreClr() {
@@ -111,18 +108,20 @@ bool CoreClr::load_library(std::filesystem::path library_path) {
     return true;
 }
 
-bool CoreClr::initialize_host(const std::filesystem::path& runtime_path, const std::filesystem::path& plugins_path,
+bool CoreClr::initialize_host(const std::filesystem::path& runtime_path, const std::filesystem::path& app_path,
+                              const std::vector<std::filesystem::path>& additional_paths,
                               const std::vector<std::filesystem::path>& additional_native_paths) {
 
-    std::string trusted_assemblies = hostcoreclr::build_tpa_list(runtime_path);
-    std::string plugin_assemblies = hostcoreclr::build_tpa_list(plugins_path);
+    std::vector<std::filesystem::path> platform_paths({ runtime_path, app_path });
+    std::string trusted_assemblies = hostcoreclr::build_tpa_list(platform_paths);
 
-    std::string runtime_location = runtime_path.string();
+    std::vector<std::filesystem::path> search_directories = additional_paths;
+    search_directories.insert(search_directories.end(), platform_paths.begin(), platform_paths.end());
 
     std::vector<std::filesystem::path> native_search_directories = additional_native_paths;
-    native_search_directories.push_back(runtime_path);
-    native_search_directories.push_back(plugins_path);
+    native_search_directories.insert(native_search_directories.end(), platform_paths.begin(), platform_paths.end());
 
+    std::string search_location = hostcoreclr::build_tpa_list(search_directories);
     std::string native_search_location = hostcoreclr::build_tpa_list(native_search_directories);
 
     const char* propertyKeys[] = {
@@ -134,11 +133,12 @@ bool CoreClr::initialize_host(const std::filesystem::path& runtime_path, const s
 
     const char* propertyValues[] = {
             trusted_assemblies.c_str(),
-            plugin_assemblies.c_str(),
-            plugin_assemblies.c_str(),
+            search_location.c_str(),
+            native_search_location.c_str(),
             native_search_location.c_str()
     };
 
+    std::string runtime_location = runtime_path.string();
     int hresult = _coreclr_initialize(
             runtime_location.c_str(),
             "Hosted CoreCLR AppDomain",

@@ -24,9 +24,9 @@ class CoreClr {
     void* _coreclr_host_handle;
     unsigned int _coreclr_domain_id;
 
-    std::string get_trusted_platform_assemblies(const std::filesystem::path& runtime_path);
     bool load_library(std::filesystem::path library_path);
-    bool initialize_host(const std::filesystem::path& runtime_path, const std::filesystem::path& plugins_path,
+    bool initialize_host(const std::filesystem::path& runtime_path, const std::filesystem::path& app_path,
+                         const std::vector<std::filesystem::path>& additional_paths = std::vector<std::filesystem::path>(),
                          const std::vector<std::filesystem::path>& additional_native_paths = std::vector<std::filesystem::path>());
 
 public:
