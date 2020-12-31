@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "host-coreclr/core_clr.h"
+#include "host-coreclr/helpers.h"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -63,21 +64,6 @@ int CoreClr::stop() {
     return _coreclr_shutdown(_coreclr_host_handle, _coreclr_domain_id, nullptr);
 }
 
-std::string CoreClr::get_trusted_platform_assemblies(const std::filesystem::path& runtime_path) {
-    std::stringstream sstream;
-    const std::string& desired_extension = ".dll";
-
-    for(auto& current_entry : std::filesystem::directory_iterator(runtime_path)) {
-        if(current_entry.is_regular_file() == false || current_entry.path().extension() != desired_extension) {
-            continue;
-        }
-
-        sstream << TPA_SEPERATOR << current_entry.path();
-    }
-
-    return sstream.str().substr(1);
-}
-
 bool CoreClr::load_library(std::filesystem::path library_path) {
     coreclr_library_t library;
 
@@ -128,20 +114,16 @@ bool CoreClr::load_library(std::filesystem::path library_path) {
 bool CoreClr::initialize_host(const std::filesystem::path& runtime_path, const std::filesystem::path& plugins_path,
                               const std::vector<std::filesystem::path>& additional_native_paths) {
 
-    std::string trusted_assemblies = get_trusted_platform_assemblies(runtime_path);
-    std::string plugins_location = plugins_path.string();
+    std::string trusted_assemblies = hostcoreclr::build_tpa_list(runtime_path);
+    std::string plugin_assemblies = hostcoreclr::build_tpa_list(plugins_path);
+
     std::string runtime_location = runtime_path.string();
 
     std::vector<std::filesystem::path> native_search_directories = additional_native_paths;
     native_search_directories.push_back(runtime_path);
     native_search_directories.push_back(plugins_path);
 
-    std::stringstream native_search_path;
-    for(auto& path : native_search_directories) {
-        native_search_path << TPA_SEPERATOR << path.string();
-    }
-
-    std::string native_search_location = native_search_path.str().substr(1);
+    std::string native_search_location = hostcoreclr::build_tpa_list(native_search_directories);
 
     const char* propertyKeys[] = {
             "TRUSTED_PLATFORM_ASSEMBLIES",
@@ -152,8 +134,8 @@ bool CoreClr::initialize_host(const std::filesystem::path& runtime_path, const s
 
     const char* propertyValues[] = {
             trusted_assemblies.c_str(),
-            plugins_location.c_str(),
-            plugins_location.c_str(),
+            plugin_assemblies.c_str(),
+            plugin_assemblies.c_str(),
             native_search_location.c_str()
     };
 
